@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculateur CO₂</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f7f9fa; }
+    h1 { color: #333; }
+    select, input, button {
+      margin: 10px 0; padding: 10px; font-size: 16px;
+      width: 100%; max-width: 400px; display: block;
+    }
+    #resultat { margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Calculateur d'Émissions CO₂</h1>
+
+  <label for="paysOrigine">Sélectionner le pays d’origine :</label>
+  <select id="paysOrigine">
+    <option value="France">France</option>
+    <option value="Espagne">Espagne</option>
+    <option value="Pologne">Pologne</option>
+    <option value="Roumanie">Roumanie</option>
+    <option value="Royaume-Uni">Royaume-Uni</option>
+    <option value="Suisse">Suisse</option>
+  </select>
+
+  <label for="paysDestination">Sélectionner une filiale :</label>
+  <select id="paysDestination">
+    <option value="France">France</option>
+    <option value="Espagne">Espagne</option>
+    <option value="Pologne">Pologne</option>
+    <option value="Roumanie">Roumanie</option>
+    <option value="Royaume-Uni">Royaume-Uni</option>
+    <option value="Suisse">Suisse</option>
+  </select>
+
+  <label for="critere">Choisissez un critère :</label>
+  <select id="critere">
+    <option value="UM">UM (palettes, boîtes, cartons...)</option>
+    <option value="Filtres">Filtres (nombre de filtres transportés)</option>
+    <option value="Expé">Expé (Expéditions)</option>
+  </select>
+
+  <label for="quantite">Quantité :</label>
+  <input type="number" id="quantite" min="1" placeholder="Entrez la quantité">
+
+  <button onclick="calculerCO2()">Calculer</button>
+
+  <div id="resultat"></div>
+
+  <script>
+    const data = {
+      "Espagne":   { UM: 25.07, Filtres: 0.08, Expé: 747.82 },
+      "Pologne":   { UM: 24.90, Filtres: 0.09, Expé: 865.27 },
+      "Roumanie":  { UM: 33.88, Filtres: 0.15, Expé: 1098.82 },
+      "Royaume-Uni": { UM: 10.03, Filtres: 0.07, Expé: 351.20 },
+      "Suisse":    { UM: 0.34, Filtres: 0.00, Expé: 12.05 },
+      "France":    { UM: 0, Filtres: 0, Expé: 0 } // France = pays interne, pas d’émission
+    };
+
+    function calculerCO2() {
+      const origine = document.getElementById("paysOrigine").value;
+      const destination = document.getElementById("paysDestination").value;
+      const critere = document.getElementById("critere").value;
+      const quantite = parseFloat(document.getElementById("quantite").value);
+      const resultat = document.getElementById("resultat");
+
+      if (!quantite || quantite <= 0) {
+        resultat.textContent = "Veuillez entrer une quantité valide.";
+        return;
+      }
+
+      if (origine === destination) {
+        resultat.textContent = "Aucune émission : la filiale est dans le même pays.";
+        return;
+      }
+
+      const valeurs = data[destination];
+      if (!valeurs || valeurs[critere] === undefined) {
+        resultat.textContent = "Données CO₂ indisponibles pour ce pays.";
+        return;
+      }
+
+      const emission = quantite * valeurs[critere];
+      let unite = critere === "Filtres" ? "filtres" : critere === "Expé" ? "expéditions" : "UM (unités mixtes)";
+      resultat.textContent = `En transportant ${quantite} ${unite} vers la filiale ${destination}, l'émission de CO₂ est estimée à ${emission.toFixed(2)} kg.`;
+    }
+  </script>
+</body>
+</html>
